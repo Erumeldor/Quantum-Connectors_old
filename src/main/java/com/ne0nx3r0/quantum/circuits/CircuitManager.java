@@ -72,7 +72,7 @@ public final class CircuitManager {
         return false;
     }
 
-    // Sender/Receiver_old checks
+    // Sender/Receiver checks
     public boolean isValidSender(Block block) {
         Material mBlock = block.getType();
         for (int i = 0; i < ValidMaterials.validSenders.length; i++) {
@@ -285,7 +285,7 @@ public final class CircuitManager {
         }
     }
 
-    //Receiver_old Types
+    //Receiver Types
     public Receiver fromType(Location location, int type, int delay) {
         return fromType(location, type, delay, keepAlives, qsWorld);
     }
@@ -295,14 +295,14 @@ public final class CircuitManager {
 
         if (ValidMaterials.LAMP.contains(m)) {
             return new RedstoneLampReceiver(location, type, delay, keepAlives, qsWorld);
-        } else if (ValidMaterials.OPENABLE.contains(m)) {
-            return new OpenableReceiver(location, type, delay);
         } else if (ValidMaterials.LEVER.contains(m)) {
             return new LeverReceiver(location, type, delay);
         } else if (ValidMaterials.RAIL.contains(m)) {
             return new PoweredRailReceiver(location, type, delay);
         } else if (ValidMaterials.PISTON.contains(m)) {
             return new PistonReceiver(location, type, delay);
+        } else if (ValidMaterials.OPENABLE.contains(m)) {
+            return new OpenableReceiver(location, type, delay);
         }
         return null;
 

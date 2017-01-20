@@ -4,6 +4,7 @@ version: '3.0'
 database: false
 startup: postworld
 description: Wireless redstone connections
+softdepend: [WorldGuard]
 commands:
    qc:
       description: Create a quantum connector

@@ -4,8 +4,9 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.PoweredRail;
 
-/**
- * Created by ysl3000 on 14.01.17.
+/*
+ * Class unused!
+ * TODO: Delete, or fix.
  */
 public class PoweredRailReceiver extends Receiver {
     public PoweredRailReceiver(Location location, int type) {
@@ -22,8 +23,10 @@ public class PoweredRailReceiver extends Receiver {
         BlockState state = location.getBlock().getState();
         PoweredRail poweredRail = (PoweredRail) state.getData();
         poweredRail.setPowered(powerOn);
+        System.out.println("Schiene ist gepowered: " + poweredRail.isPowered());
+        poweredRail.setData(poweredRail.getData());
         state.setData(poweredRail);
-        state.update();
+        state.update(true);
 
     }
 }

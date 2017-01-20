@@ -61,8 +61,10 @@ public class ValidMaterials {
             Material.JUNGLE_DOOR,
             Material.ACACIA_DOOR,
             Material.DARK_OAK_DOOR,
+            Material.IRON_TRAPDOOR,
             Material.TRAP_DOOR,
-            Material.POWERED_RAIL,
+            // TODO: Rails don't work... Fix that?
+            //Material.POWERED_RAIL,
             Material.FENCE_GATE,
             Material.SPRUCE_FENCE_GATE,
             Material.BIRCH_FENCE_GATE,
@@ -85,18 +87,22 @@ public class ValidMaterials {
             Material.ACACIA_DOOR,
             Material.DARK_OAK_DOOR,
             Material.TRAP_DOOR,
-            Material.POWERED_RAIL,
             Material.FENCE_GATE,
             Material.SPRUCE_FENCE_GATE,
             Material.BIRCH_FENCE_GATE,
             Material.JUNGLE_FENCE_GATE,
             Material.ACACIA_FENCE_GATE,
-            Material.DARK_OAK_FENCE_GATE);
+            Material.DARK_OAK_FENCE_GATE,
+            Material.IRON_DOOR_BLOCK,
+            Material.IRON_TRAPDOOR);
 
     public final static List<Material> LAMP = Arrays.asList(Material.REDSTONE_LAMP_OFF, Material.REDSTONE_LAMP_ON);
     public final static List<Material> LEVER = Arrays.asList(Material.LEVER);
     public final static List<Material> RAIL = Arrays.asList(Material.POWERED_RAIL);
-    public final static List<Material> PISTON = Arrays.asList(Material.PISTON_BASE);
+    public final static List<Material> PISTON = Arrays.asList(
+            Material.PISTON_BASE,
+            Material.PISTON_STICKY_BASE
+    );
 
 
 }

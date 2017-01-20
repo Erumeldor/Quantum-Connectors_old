@@ -37,6 +37,19 @@ public class Circuit implements ConfigurationSerializable {
         receivers.add(circuitManager.fromType(loc, type, delay));
     }
 
+    public boolean isReceiver(Location loc){
+        return getReceiver(loc) != null;
+    }
+
+    public Receiver getReceiver(Location loc){
+        for (Receiver r : receivers) {
+            if (r.getLocation().equals(loc)) {
+                return r;
+            }
+        }
+        return null;
+    }
+
     public List<Receiver> getReceivers() {
         return receivers;
     }

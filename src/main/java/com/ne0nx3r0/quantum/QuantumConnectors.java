@@ -7,8 +7,10 @@ import com.ne0nx3r0.quantum.listeners.QuantumConnectorsWorldListener;
 import com.ne0nx3r0.quantum.nmswrapper.ClassRegistry;
 import com.ne0nx3r0.quantum.nmswrapper.QSWorld;
 import com.ne0nx3r0.quantum.utils.MessageLogger;
+import com.ne0nx3r0.quantum.utils.WorldGuardManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -38,6 +40,8 @@ public class QuantumConnectors extends JavaPlugin {
     private QuantumConnectorsPlayerListener playerListener;
     private QuantumConnectorsBlockListener blockListener;
     private MessageLogger messageLogger;
+    public WorldGuardManager worldGuardManager;
+    public boolean worldGuardEnabled;
 
 
     private boolean UPDATE_NOTIFICATIONS = false;
@@ -70,32 +74,40 @@ public class QuantumConnectors extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // TODO: 14.01.17 move to Configloader
         //This might be outdated...
         getDataFolder().mkdirs();
-
-        // TODO: 14.01.17 move to Configloader
-
         //Load config options, localized messages
         setupConfig();
 
+        this.messageLogger = new MessageLogger(this.getLogger(), messages);
+        Plugin worldGuard = null;
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            this.worldGuardEnabled = true;
+            worldGuard = getServer().getPluginManager().getPlugin("WorldGuard");
+            messageLogger.log("WorldGuardSupport enabled");
+        }
+        else {
+            this.worldGuardEnabled = false;
+        }
 
         String packageName = getServer().getClass().getPackage().getName();
         this.apiVersion = packageName.substring(packageName.lastIndexOf('.') + 1);
         try {
-            this.classRegistry = new ClassRegistry(apiVersion);
+            this.classRegistry = new ClassRegistry(apiVersion, worldGuardEnabled);
         } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException e) {
             e.printStackTrace();
         }
+        if(worldGuardEnabled)
+            worldGuardManager = new WorldGuardManager(classRegistry, worldGuard);
 
         this.qsWorld = new QSWorld(this.classRegistry);
 
-        this.messageLogger = new MessageLogger(this.getLogger(), messages);
+
         //Create a circuit manager
         this.circuitManager = new CircuitManager(messageLogger, this, qsWorld);
 
         this.worldListener = new QuantumConnectorsWorldListener(this.circuitManager.getCircuitLoader());
-        this.blockListener = new QuantumConnectorsBlockListener(this, circuitManager);
+        this.blockListener = new QuantumConnectorsBlockListener(this, circuitManager, messageLogger);
         this.playerListener = new QuantumConnectorsPlayerListener(this, circuitManager, messageLogger);
 
         getCommand("qc").setExecutor(new QuantumConnectorsCommandExecutor(this, circuitManager, messageLogger));

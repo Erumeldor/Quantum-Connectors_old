@@ -49,13 +49,24 @@ public class QuantumConnectorsPlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
-
+        boolean playerCanBuild;
+        //Check WorldGuardSupport and build permission. Only users with build permission can place circuits.
+        if(plugin.worldGuardEnabled){
+            playerCanBuild = plugin.worldGuardManager.playerCanBuild(event.getPlayer(),event.getClickedBlock().getLocation());
+        }
+        else {
+            playerCanBuild = true;
+        }
         //Holding redstone, clicked a block, and has a pending circuit from /qc
         if (event.getItem() != null
                 && event.getItem().getType() == Material.REDSTONE
                 && event.getClickedBlock() != null
                 && circuitManager.hasPendingCircuit(event.getPlayer())) {
             Player player = event.getPlayer();
+            if(!playerCanBuild) {
+                messageLogger.msg(player, messageLogger.getMessage("no_build_permission"));
+                return;
+            }
             PendingCircuit pc = circuitManager.getPendingCircuit(player);
             Block block = event.getClickedBlock();
             Location clickedLoc = block.getLocation();
@@ -90,11 +101,21 @@ public class QuantumConnectorsPlayerListener implements Listener {
                 //Player clicked the sender block again
                 if (pc.getSenderLocation().toString().equals(clickedLoc.toString())) {
                     messageLogger.msg(player, ChatColor.YELLOW + "A block cannot be the sender AND the receiver!");
-
                 }
                 //Player clicked a valid receiver block
                 else if (circuitManager.isValidReceiver(block)) {
 
+                    //Player clicked a receiver again
+                    if(pc.getCircuit().isReceiver(clickedLoc)){
+                        // Player is sneaking, receiver will be removed.
+                        if(player.isSneaking()){
+                            messageLogger.msg(player, messageLogger.getMessage("receiver_deleted"));
+                            pc.getCircuit().delReceiver(pc.getCircuit().getReceiver(clickedLoc));
+                        }
+                        else
+                            messageLogger.msg(player, messageLogger.getMessage("receiver_already_added"));
+                        return;
+                    }
                     //Only allow circuits in the same world, sorry multiworld QCircuits :(
                     if (pc.getSenderLocation().getWorld().equals(clickedLoc.getWorld())) {
                         //Isn't going over max receivers
@@ -113,7 +134,7 @@ public class QuantumConnectorsPlayerListener implements Listener {
 
                         }
                     }
-                    //Receiver_old was in a different world
+                    //Receiver was in a different world
                     else {
                         messageLogger.msg(player, ChatColor.RED + "Receivers must be in the same world as their sender! Sorry :|");
                     }
@@ -122,7 +143,7 @@ public class QuantumConnectorsPlayerListener implements Listener {
                 else {
                     messageLogger.msg(player, ChatColor.RED + "Invalid receiver!");
                     messageLogger.msg(player, ChatColor.YELLOW + "Receivers: " + ChatColor.WHITE + circuitManager.getValidReceiversString());
-                    messageLogger.msg(player, "('/qc done' if you are finished)");
+                    messageLogger.msg(player, "('/qc done' to finish circuit, or '/qc cancel' to void it)");
 
                 }
             }
@@ -149,7 +170,7 @@ public class QuantumConnectorsPlayerListener implements Listener {
                 circuitManager.activateCircuit(event.getClickedBlock().getLocation(), current, current > 0 ? 0 : 15);
             } else if (block.getType() == Material.BOOKSHELF) {
                 // send on
-                circuitManager.activateCircuit(event.getClickedBlock().getLocation(), 5, 0);
+                circuitManager.activateCircuit(event.getClickedBlock().getLocation(), 0, 15);
             }
         }
     }
