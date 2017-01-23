@@ -6,7 +6,7 @@
 
     <groupId>com.ne0nx3r0.quantum</groupId>
     <artifactId>QuantumConnectors</artifactId>
-    <version>3.0</version>
+    <version>3.1</version>
     <packaging>jar</packaging>
 
     <name>QuantumConnectors</name>
