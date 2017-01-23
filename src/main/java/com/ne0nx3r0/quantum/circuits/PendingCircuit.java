@@ -15,6 +15,12 @@ public class PendingCircuit {
         currentDelay = delay;
         circuit = new Circuit(ownerUUID, cmanager);
     }
+    public PendingCircuit(UUID ownerUUID, Circuit circuit, Location senderLocation, CircuitManager cmanager) {
+        currentType = 0;
+        currentDelay = 0;
+        this.circuit = new Circuit(ownerUUID, circuit.getReceivers(), cmanager);
+        this.senderLocation = senderLocation;
+    }
 
     public void setCircuitType(int type, int delay) {
         currentType = type;

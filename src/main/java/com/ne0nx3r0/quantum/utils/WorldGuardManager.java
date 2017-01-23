@@ -23,7 +23,6 @@ public class WorldGuardManager {
     public boolean playerCanBuild(Player player, Location loc) {
         Object result = false;
         try {
-            System.out.println("Objekt: " + worldGuardPlugin.toString() + " Methode: " + classRegistry.getWorldGuardCanBuild());
             result = classRegistry.getWorldGuardCanBuild().invoke(worldGuardPlugin, player, loc);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();

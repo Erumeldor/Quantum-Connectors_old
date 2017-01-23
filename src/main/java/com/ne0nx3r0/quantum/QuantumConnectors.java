@@ -85,8 +85,7 @@ public class QuantumConnectors extends JavaPlugin {
             this.worldGuardEnabled = true;
             worldGuard = getServer().getPluginManager().getPlugin("WorldGuard");
             messageLogger.log("WorldGuardSupport enabled");
-        }
-        else {
+        } else {
             this.worldGuardEnabled = false;
         }
 
@@ -97,7 +96,7 @@ public class QuantumConnectors extends JavaPlugin {
         } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException e) {
             e.printStackTrace();
         }
-        if(worldGuardEnabled)
+        if (worldGuardEnabled)
             worldGuardManager = new WorldGuardManager(classRegistry, worldGuard);
 
         this.qsWorld = new QSWorld(this.classRegistry);

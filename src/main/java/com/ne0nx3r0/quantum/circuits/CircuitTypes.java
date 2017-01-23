@@ -6,7 +6,8 @@ public enum CircuitTypes{
     OFF(2),
     TOGGLE(3),
     REVERSE(4),
-    RANDOM(5);
+    RANDOM(5),
+    IMPULSE(6);
 
     public int id;
     public String name;
@@ -38,6 +39,8 @@ public enum CircuitTypes{
             return "REVERSE";
         } else if (id == CircuitTypes.RANDOM.getId()) {
             return "RANDOM";
+        } else if (id == CircuitTypes.IMPULSE.getId()) {
+            return "IMPULSE";
         } else {
             return "unknown";
         }

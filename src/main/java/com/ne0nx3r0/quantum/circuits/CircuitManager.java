@@ -6,6 +6,7 @@ import com.ne0nx3r0.quantum.nmswrapper.QSWorld;
 import com.ne0nx3r0.quantum.receiver.*;
 import com.ne0nx3r0.quantum.utils.MessageLogger;
 import com.ne0nx3r0.quantum.utils.ValidMaterials;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -174,6 +175,18 @@ public final class CircuitManager {
                         if (newCurrent > 0 && (oldCurrent == 0 || newCurrent == 0)) {
                             setReceiver(r, new Random().nextBoolean(), iDelay);
                         }
+                    } else if (iType == CircuitTypes.IMPULSE.getId()) {
+                        if (newCurrent > 0 && oldCurrent == 0) {
+                            int tempDelay = iDelay;
+                            Receiver tempR = r;
+                            setReceiver(r, true, iDelay);
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    setReceiver(tempR, false, tempDelay);
+                                }
+                            }, 2L);
+                        }
                     }
 
                     if (b.getType() == Material.TNT) { // TnT is one time use!
@@ -209,7 +222,6 @@ public final class CircuitManager {
     }
 
     private void setReceiver(Receiver receiver, boolean on, int iDelay) {
-
         if (iDelay == 0) {
             setReceiver(receiver, on);
         } else {
@@ -228,10 +240,12 @@ public final class CircuitManager {
 // I really don't know what order this deserves among the existing class methods
     public PendingCircuit addPendingCircuit(Player player, int type, int delay) {
         PendingCircuit pc = new PendingCircuit(player.getUniqueId(), type, delay, this);
-
-
         pendingCircuits.put(player.getName(), pc);
-
+        return pc;
+    }
+    public PendingCircuit addPendingCircuit(Player player, Circuit circuit, Location loc) {
+        PendingCircuit pc = new PendingCircuit(player.getUniqueId(), circuit, loc, this);
+        pendingCircuits.put(player.getName(), pc);
         return pc;
     }
 
@@ -267,6 +281,14 @@ public final class CircuitManager {
 
     public Set<Location> circuitLocations(World w) {
         return worlds.get(w).keySet();
+    }
+
+    public void playParticleEffekt(Circuit circuit, Location senderLoc) {
+        senderLoc.getWorld().playEffect(senderLoc, Effect.VILLAGER_PLANT_GROW, 100);
+        for(Receiver r : circuit.getReceivers()){
+            Location l = r.getLocation();
+            l.getWorld().playEffect(l, Effect.VILLAGER_PLANT_GROW, 100);
+        }
     }
 
     private class DelayedSetReceiver implements Runnable {
@@ -305,6 +327,5 @@ public final class CircuitManager {
             return new OpenableReceiver(location, type, delay);
         }
         return null;
-
     }
 }

@@ -145,7 +145,7 @@ public class CircuitLoader {
             FileConfiguration yml = YamlConfiguration.loadConfiguration(ymlFile);
 
             if (QuantumConnectors.VERBOSE_LOGGING)
-                messageLogger.log(messageLogger.getMessage("saving").replace("%file", ymlFile.getName()));
+                messageLogger.log(messageLogger.getMessage("saving").replace("%file%", ymlFile.getName()));
 
             //Prep this world's data for saving
             List<Object> tempCircuits = new ArrayList<Object>();

@@ -1,10 +1,12 @@
 package com.ne0nx3r0.quantum;
 
+import com.ne0nx3r0.quantum.circuits.Circuit;
 import com.ne0nx3r0.quantum.circuits.CircuitManager;
 import com.ne0nx3r0.quantum.circuits.CircuitTypes;
 import com.ne0nx3r0.quantum.circuits.PendingCircuit;
 import com.ne0nx3r0.quantum.utils.MessageLogger;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -12,6 +14,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.Set;
 
 public class QuantumConnectorsCommandExecutor implements CommandExecutor {
     private QuantumConnectors plugin;
@@ -22,7 +26,6 @@ public class QuantumConnectorsCommandExecutor implements CommandExecutor {
         this.plugin = plugin;
         this.circuitManager = circuitManager;
         this.messageLogger = messageLogger;
-
     }
 
     @Override
@@ -174,9 +177,52 @@ public class QuantumConnectorsCommandExecutor implements CommandExecutor {
 
             //Player doesn't have permission
             else {
-                messageLogger.msg(player, ChatColor.RED + messageLogger.getMessage("no_permission").replace("%circuit", args[0].toUpperCase()));
+                messageLogger.msg(player, ChatColor.RED + messageLogger.getMessage("no_permission").replace("%circuit%", args[0].toUpperCase()));
             }
         }
+
+
+        // Player typed /qc edit
+        else if (args[0].equalsIgnoreCase("edit")) {
+            if (circuitManager.hasPendingCircuit(player)) {
+                //abort, already has pending Circuit
+                messageLogger.msg(player, messageLogger.getMessage("other_circuit_detected"));
+                return true;
+            }
+            Location lookingAt = player.getTargetBlock((Set<Material>) null, 100).getLocation();
+            Circuit circuit = circuitManager.getCircuit(lookingAt);
+            if (circuit == null) {
+                messageLogger.msg(player, messageLogger.getMessage("no_circuit_looking_at"));
+                return true;
+            }
+            if (plugin.worldGuardEnabled) {
+                if (!plugin.worldGuardManager.playerCanBuild(player, lookingAt)) {
+                    //abort, no build rights.
+                    messageLogger.msg(player, messageLogger.getMessage("no_build_permission"));
+                    return true;
+                }
+            } else if (!circuit.getOwner().equals(player.getUniqueId())) {
+                // Abort, not your circuit
+                messageLogger.msg(player, messageLogger.getMessage("not_the_owner"));
+                return true;
+            }
+            messageLogger.msg(player, messageLogger.getMessage("edit_circuit"));
+            circuitManager.addPendingCircuit(player, circuit, lookingAt);
+            repeatTask(circuit, lookingAt, 0);
+        }
+
+        // Command was /qc info
+        else if (args[0].equalsIgnoreCase("info")) {
+            if (circuitManager.hasPendingCircuit(player)) {
+                PendingCircuit pc = circuitManager.getPendingCircuit(player);
+                Circuit circuit = pc.getCircuit();
+                repeatTask(circuit, pc.getSenderLocation(), 0);
+                messageLogger.msg(player, messageLogger.getMessage("circuit_info").replace("%amount%", String.valueOf(circuit.getReceiversCount())));
+            } else {
+                messageLogger.msg(player, messageLogger.getMessage("no_pending_circuit"));
+            }
+        }
+
 
 // Command was invalid
         else {
@@ -186,4 +232,15 @@ public class QuantumConnectorsCommandExecutor implements CommandExecutor {
         return true;
 
     }//End onCommand
+
+    private void repeatTask(Circuit circuit, Location loc, int counter) {
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                circuitManager.playParticleEffekt(circuit, loc);
+                if (counter < 5)
+                    repeatTask(circuit, loc, counter + 1);
+            }
+        }, 30L);
+    }
 }
